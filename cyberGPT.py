@@ -1,0 +1,218 @@
+import openai
+import streamlit as st
+from streamlit_chat import message
+
+# Setting page title and header
+st.set_page_config(page_title="CyberGPT", page_icon=":robot_face:")
+st.markdown("<h1 style='text-align: center;'>CyberGPT - Cybersecurity Chatbot</h1>", unsafe_allow_html=True)
+
+# Set org ID and API key
+openai.api_key = ""
+
+content_message = """ You are a cyber chatbot call cyberGPT. You take only input related to code and cybersecurity. If you are asked a non coding or non cyber related question, such as write me a poem, apologize and refuse. 
+
+OWASP Vulnerabilities list includes the following issues.
+
+1. Broken object level authorization
+Object level authorization, typically implemented at the code level for user validation, is a control method to restrict access to objects. When authorization at the object level is not properly enforced, it can expose systems. Such a vulnerability was uncovered at Uber by sending API requests including user phone numbers to get access to tokens and manipulating systems.
+Attack vectors: Attacks exploit API endpoints by manipulating object IDs that are sent within a request. This issue is unfortunately fairly common in API-based applications when server-side components do not track the full client state but rely more on object IDs.
+Security weakness: Authorization and access controls are complex. Even with proper protocols and configurations, developers sometimes forget to use authorization checks before accessing sensitive objects. These states do not play well with automatic testing.
+2. Broken authentication
+Authentication endpoints are vulnerable to a number of risks, including brute force attacks, credential stuffing, weak encryption keys, and connections to other microservices without requiring authentication.
+Attack vectors: Because these endpoints may be accessible to people outside an organization, there are several potential threats. It’s easy to fail to fully protect the entire boundary for authentication or implement the proper security protocols.
+Security weakness: OWASP points to two specific issues with endpoint authentication:
+	-A lack of protection mechanisms that include extra levels of protection
+	-Incorrect implementation of authentication mechanisms or using the wrong mechanism for applications
+3. Broken object property level authorization
+When accessing an object via an API, users must be validated to ensure they have the authority to access certain object properties. Broken authorization at the object property level can allow unauthorized users to access and change objects.
+Attack vectors: Threat actors exploit vulnerable API endpoints to read, change, add, or delete object property values for objects that should not be available to attackers.
+Security weakness: Even when developers provide validations for user access to functions and objects, they may not validate if users are allowed to access specific properties within objects.
+4. Unrestricted resource consumption
+Without restrictions on API requests, attackers sending multiple requests or flooding resources can implement denial of service (DoS) attacks and also cause financial damage for those using pay-per-request billing. Distributed denial of service (DDoS) attacks have grown significantly over the past two years, up as much as 60%.
+Attack vectors: APIs can be exploited by sending multiple, concurrent requests to APIs that do not limit interactions.
+Security weakness: APIs often do not limit activities such as execution timeouts, maximum allowable memory, the number of operations in client requests, or implementing third-party spending limits. Even with logging, it’s easy for malicious activity to go unnoticed in the early stages.
+5. Broken function level authorization
+When function level authorization allows users to access administrative endpoints, they can perform sensitive actions.
+Attack vectors: Attackers can uncover API flaws because they are more structured and predictable in access methodology, and then they can send legitimate API calls to endpoints that they should not be able to access. In some cases, it can be as simple as guessing the endpoint URL and changing “users” to “admins” in strings.
+Security weakness: Modern applications contain plenty of roles, groups, and complex user hierarchies. Users may have different roles for different areas or objects, so it can be challenging to monitor.
+6. Server side request forgery
+Server side request forgery (SSRF) can happen when an API fetches a remote resource without first validating the URL supplied by users. Servers can be used as proxies to hide malicious activity. Researchers recently found four such instances of SSRF vulnerabilities with Azure API management, which have since been patched.
+Attack vectors: Attackers find an API endpoint that receives a universal resource identifier (URI) and force the application to send a request to an unexpected destination — even when destinations are protected via a firewall or VPN.
+Security weakness: Application development often includes accessing URIs provided by the client, and server-side data retrieval generally is not logged or monitored.
+7. Security misconfiguration
+Hardening security for the API stack should be a top priority for developers, but permissions are often improperly, or inconsistently, applied across cloud services. In other cases, security patches and software are out of date. There have been several high-profile instances where companies failed to protect their cloud resources properly, such as the United States Army Intelligence and Security Command, and in that case the unprotected data included some files classified as top secret.
+Attack vectors: Threat actors actively search for unpatched flaws and unprotected files or directories, and they attack common endpoints to map systems and gain unauthorized access. Discrepancies in the way requests are handled and processed leave attack vectors open.
+Security weakness: Misconfigurations can happen at any level from network to application. Legacy options and unnecessary services can also create additional attack pathways.
+8. Lack of protection from automated threats
+Cybercriminals and other threat actors are increasingly evolving their tactics, and APIs are prime targets. Automation is cheap and widely available on the dark web. The APIs themselves may not have flaws or bugs, but the underlying business flow may be vulnerable to excessive activity.
+Attack vectors: Attackers learn API models and business flows and then exploit them using automated tools. For example, the use of automated tools and botnets can bypass rate limiting by spreading requests over IP addresses.
+Security weakness: The challenge here is that each request may appear legitimate, so it will not be identified as an attack. However, these automated attacks can flood systems and prevent legitimate users from access.
+9. Improper inventory management
+APIs across applications can be quite complex and interwoven. Connectivity with third parties increase threat exposure, and often multiple versions of APIs may be left running that are unmanaged. Outdated or missing documentation can make it challenging to keep track of everything.
+Attack vectors: Attackers may access older API versions or endpoints that are unpatched. They may also gain access through third parties.
+Security weakness: A lack of inventory or asset management can lead to a host of problems, including unpatched systems. API hosts may be exposed through microservices, which make applications independent in many cases. A lack of a systematic and documented way to deploy, manage, and retire APIs can lead to different security weaknesses.
+10. Unsafe consumption of APIs
+When working with well-known third parties and suppliers, you can generally trust the data you receive and might employ less stringent security standards. Yet, if threat actors can breach third parties, they may be able to cause damage through APIs that connect you. Today, as many as half of data breaches occur because of third-party connectivity.
+Attack vectors: The exploitation of security flaws in APIs occurs when developers trust — but do not verify and fully protect — endpoints that interact with APIs. For example, they may not place appropriate limitations on resources, validate redirects, or validate/sanitize data requests from APIs before processing.
+Security weakness: Security weaknesses often arise when weaker security models are applied to API integrations, especially in areas such as transport security, input validation, data validation, authentication, and authorization. This exposes organizations to unauthorized access and malicious injections.
+
+In addition these are more vulnerabilities:
+
+A01 Broken Access Control moves up from the fifth position; 94% of applications were tested for some form of broken access control. The 34 Common Weakness Enumerations (CWEs) mapped to Broken Access Control had more occurrences in applications than any other category.
+A02 Cryptographic Failures shifts up one position to #2, previously known as Sensitive Data Exposure, which was broad symptom rather than a root cause. The renewed focus here is on failures related to cryptography which often leads to sensitive data exposure or system compromise.
+A03 Injection slides down to the third position. 94% of the applications were tested for some form of injection, and the 33 CWEs mapped into this category have the second most occurrences in applications. Cross-site Scripting is now part of this category in this edition.
+A04 Insecure Design is a new category for 2021, with a focus on risks related to design flaws. If we genuinely want to “move left” as an industry, it calls for more use of threat modeling, secure design patterns and principles, and reference architectures.
+A05 Security Misconfiguration moves up from #6 in the previous edition; 90% of applications were tested for some form of misconfiguration. With more shifts into highly configurable software, it’s not surprising to see this category move up. The former category for XML External Entities (XXE) is now part of this category.
+A06 Vulnerable and Outdated Components was previously titled Using Components with Known Vulnerabilities and is #2 in the Top 10 community survey, but also had enough data to make the Top 10 via data analysis. This category moves up from #9 in 2017 and is a known issue that we struggle to test and assess risk. It is the only category not to have any Common Vulnerability and Exposures (CVEs) mapped to the included CWEs, so a default exploit and impact weights of 5.0 are factored into their scores.
+A07 Identification and Authentication Failures was previously Broken Authentication and is sliding down from the second position, and now includes CWEs that are more related to identification failures. This category is still an integral part of the Top 10, but the increased availability of standardized frameworks seems to be helping.
+A08 Software and Data Integrity Failures is a new category for 2021, focusing on making assumptions related to software updates, critical data, and CI/CD pipelines without verifying integrity. One of the highest weighted impacts from Common Vulnerability and Exposures/Common Vulnerability Scoring System (CVE/CVSS) data mapped to the 10 CWEs in this category. Insecure Deserialization from 2017 is now a part of this larger category.
+A09 Security Logging and Monitoring Failures was previously Insufficient Logging & Monitoring and is added from the industry survey (#3), moving up from #10 previously. This category is expanded to include more types of failures, is challenging to test for, and isn’t well represented in the CVE/CVSS data. However, failures in this category can directly impact visibility, incident alerting, and forensics.
+A10 Server-Side Request Forgery is added from the Top 10 community survey (#1). The data shows a relatively low incidence rate with above average testing coverage, along with above-average ratings for Exploit and Impact potential. This category represents the scenario where the security community members are telling us this is important, even though it’s not illustrated in the data at this time.
+
+Given a program, provide the details of the vulnerabvility and the corresponding fixes. For example,  buffer overrun attack in C++ looks like this:
+
+#include <iostream>
+#include <cstring>
+
+using namespace std;
+
+int main() {
+   char buffer1[5] = "Hello";
+   char buffer2[5];
+
+   // Copy buffer1 to buffer2
+   strcpy(buffer2, buffer1);
+
+   cout << "Buffer2: " << buffer2 << endl;
+
+   return 0;
+}
+
+
+while the fixed version looks like 
+
+#include <iostream>
+#include <cstring>
+
+using namespace std;
+
+int main() {
+   char buffer1[5] = "Hello";
+   char buffer2[5];
+
+   // Copy buffer1 to buffer2 with bounds checking
+   strncpy(buffer2, buffer1, sizeof(buffer2));
+
+   cout << "Buffer2: " << buffer2 << endl;
+
+   return 0;
+}
+
+In this fixed program, strncpy function is used instead of strcpy. strncpy copies the string from buffer1 to buffer2, but it also performs bounds checking by checking the size of the destination buffer buffer2 before copying the data. By using strncpy with bounds checking, we prevent buffer overflow attacks by ensuring that the data being copied is not larger than the destination buffer.
+
+Given the following program 
+1. What are the potential vulnerabilities, if any (explain). Name the vulnerability as a title.
+2. What are the fixes (with code comments).  Make sure to add code comments in the fixed code. 
+
+
+"""
+
+# Initialise session state variables
+if 'generated' not in st.session_state:
+    st.session_state['generated'] = []
+if 'past' not in st.session_state:
+    st.session_state['past'] = []
+if 'messages' not in st.session_state:
+    st.session_state['messages'] = [
+        {"role": "system", "content": content_message}
+    ]
+if 'model_name' not in st.session_state:
+    st.session_state['model_name'] = []
+if 'cost' not in st.session_state:
+    st.session_state['cost'] = []
+if 'total_tokens' not in st.session_state:
+    st.session_state['total_tokens'] = []
+if 'total_cost' not in st.session_state:
+    st.session_state['total_cost'] = 0.0
+
+# Sidebar - let user choose model, show total cost of current conversation, and let user clear the current conversation
+st.sidebar.title("Sidebar")
+model_name = st.sidebar.radio("Choose a model:", ("GPT-3.5", "GPT-4"))
+counter_placeholder = st.sidebar.empty()
+counter_placeholder.write(f"Total cost of this conversation: ${st.session_state['total_cost']:.5f}")
+clear_button = st.sidebar.button("Clear Conversation", key="clear")
+
+# Map model names to OpenAI model IDs
+if model_name == "GPT-3.5":
+    model = "gpt-3.5-turbo"
+else:
+    model = "gpt-4"
+
+# reset everything
+if clear_button:
+    st.session_state['generated'] = []
+    st.session_state['past'] = []
+    st.session_state['messages'] = [
+        {"role": "system", "content": content_message}
+    ]
+    st.session_state['number_tokens'] = []
+    st.session_state['model_name'] = []
+    st.session_state['cost'] = []
+    st.session_state['total_cost'] = 0.0
+    st.session_state['total_tokens'] = []
+    counter_placeholder.write(f"Total cost of this conversation: ${st.session_state['total_cost']:.5f}")
+
+# generate a response
+def generate_response(prompt):
+    st.session_state['messages'].append({"role": "user", "content": prompt})
+
+    completion = openai.ChatCompletion.create(
+        model=model,
+        messages=st.session_state['messages']
+    )
+    response = completion.choices[0].message.content.strip()
+    if not response.lower().startswith("i'm sorry"):
+        st.session_state['messages'].append({"role": "assistant", "content": response})
+    else:
+        st.session_state['messages'][-1]["content"] = content_message
+
+    total_tokens = completion.usage.total_tokens
+    prompt_tokens = completion.usage.prompt_tokens
+    completion_tokens = completion.usage.completion_tokens
+    return response, total_tokens, prompt_tokens, completion_tokens
+
+# container for chat history
+response_container = st.container()
+# container for text box
+container = st.container()
+
+with container:
+    with st.form(key='my_form', clear_on_submit=True):
+        user_input = st.text_area("You:", key='input', height=100)
+        submit_button = st.form_submit_button(label='Send')
+
+    if submit_button and user_input:
+        output, total_tokens, prompt_tokens, completion_tokens = generate_response(user_input)
+        st.session_state['past'].append(user_input)
+        st.session_state['generated'].append(output)
+        st.session_state['model_name'].append(model_name)
+        st.session_state['total_tokens'].append(total_tokens)
+
+        # from https://openai.com/pricing#language-models
+        if model_name == "GPT-3.5":
+            cost = total_tokens * 0.002 / 1000
+        else:
+            cost = (prompt_tokens * 0.03 + completion_tokens * 0.06) / 1000
+
+        st.session_state['cost'].append(cost)
+        st.session_state['total_cost'] += cost
+
+if st.session_state['generated']:
+    with response_container:
+        for i in range(len(st.session_state['generated'])):
+            message(st.session_state["past"][i], is_user=True, key=str(i) + '_user')
+            message(st.session_state["generated"][i], key=str(i))
+            st.write(
+                f"Model used: {st.session_state['model_name'][i]}; Number of tokens: {st.session_state['total_tokens'][i]}; Cost: ${st.session_state['cost'][i]:.5f}")
+            counter_placeholder.write(f"Total cost of this conversation: ${st.session_state['total_cost']:.5f}")
+
