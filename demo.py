@@ -7,7 +7,7 @@ st.set_page_config(page_title="UST Code Security Analyser", page_icon=":robot_fa
 st.markdown("<h1 style='text-align: center;'>UST Code Security Analyser</h1>", unsafe_allow_html=True)
 
 # Set org ID and API key
-openai.api_key = "API HERE"
+openai.api_key = "YOUR API HERE"
 
 content_message = """ You are a cyber chatbot call cyberGPT. You take only input related to code and cybersecurity. If you are asked a non coding or non cyber related question, such as write me a poem, apologize and refuse. 
 OWASP Vulnerabilities list includes the following issues.
