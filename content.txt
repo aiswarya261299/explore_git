@@ -79,5 +79,5 @@ int main() {
 }
 In this fixed program, strncpy function is used instead of strcpy. strncpy copies the string from buffer1 to buffer2, but it also performs bounds checking by checking the size of the destination buffer buffer2 before copying the data. By using strncpy with bounds checking, we prevent buffer overflow attacks by ensuring that the data being copied is not larger than the destination buffer.
 Given the following program 
-1. What are the potential vulnerabilities, if any (explain). Name the vulnerability as a title.
-2. What are the fixes (with code comments).  Make sure to add code comments in the fixed code. 
+1. What are the potential vulnerabilities, if any say vulnerability found (explain). Name the vulnerability as a title.
+2. What are the recommended fixes (with code comments).  Make sure to add code comments in the fixed code. 
